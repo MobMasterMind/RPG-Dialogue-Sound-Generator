@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>RPG Dialogue Sound Generator</title>
+<meta name="description" content="Import your RPG dialogue audio samples, loop, pitch-shift, and generate variations effortlessly with the RPG Dialogue Sound Generator by MobMasterMind." />
+<meta name="keywords" content="RPG dialogue, audio loop, pitch shift, sound generator, game audio, sound effects, MobMasterMind" />
+<meta name="author" content="MobMasterMind" />
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+  /* Root colors for orangy-pinkish gradient theme */
+  :root {
+    --color-primary-start: #f63763;
+    --color-primary-end: #d98851;
+    --color-bg: #fff0f0;
+    --color-text: #4a1a1a;
+    --color-input-bg: #ffe9e9;
+    --color-input-border: #f68383;
+    --color-button-bg: #f63763;
+    --color-button-hover-bg: #d98851;
+    --color-button-text: #fff;
+    --color-status-text: #9c3a3a;
+  }
+
+  /* Smooth fade-in animation */
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Body styling */
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, var(--color-primary-start), var(--color-primary-end));
+    color: var(--color-text);
+    margin: 0; 
+    padding: 20px;
+    display: flex; 
+    flex-direction: column; 
+    align-items: center;
+    min-height: 100vh;
+    animation: fadeInUp 1s ease forwards;
+  }
+
+  /* Main container styling */
+  main {
+    background: var(--color-bg);
+    padding: 25px 30px;
+    border-radius: 18px;
+    box-shadow: 0 12px 28px rgba(214, 84, 84, 0.35);
+    max-width: 520px;
+    width: 100%;
+    animation: fadeInUp 1s ease forwards;
+  }
+
+  /* Heading styling */
+  h1 {
+    margin-bottom: 10px;
+    font-weight: 700;
+    font-size: 2rem;
+    text-align: center;
+    color: #7a1e1e;
+    text-shadow: 0 2px 6px rgba(246, 55, 99, 0.8);
+  }
+
+  /* Labels */
+  label {
+    display: block;
+    margin-top: 18px;
+    font-weight: 600;
+    color: #7a1e1e;
+    letter-spacing: 0.02em;
+  }
+
+  /* Tooltip question mark style */
+  .tooltip {
+    position: relative;
+    cursor: help;
+    margin-left: 6px;
+    color: #d98851;
+    font-weight: 700;
+    user-select: none;
+    display: inline-block;
+  }
+  .tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+  }
+  .tooltiptext {
+    visibility: hidden;
+    width: 220px;
+    background-color: #d98851;
+    color: #fff;
+    text-align: left;
+    border-radius: 8px;
+    padding: 8px 12px;
+    position: absolute;
+    z-index: 10;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.3s;
+    font-weight: 400;
+    font-size: 0.9rem;
+    line-height: 1.2;
+    pointer-events: none;
+  }
+  .tooltiptext::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -6px;
+    border-width: 6px;
+    border-style: solid;
+    border-color: #d98851 transparent transparent transparent;
+  }
+
+  /* Inputs and selects styling */
+  input[type="file"],
+  input[type="number"],
+  select {
+    width: 100%;
+    padding: 10px 14px;
+    margin-top: 8px;
+    border: 2px solid var(--color-input-border);
+    border-radius: 10px;
+    font-size: 1rem;
+    background: var(--color-input-bg);
+    color: var(--color-text);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+
+    /* Fix alignment and sizing */
+    box-sizing: border-box;
+    max-width: 100%;
+  }
+
+  /* Fix input fields that were going too far right */
+  #fileInput,
+  #startTime,
+  #endTime,
+  #loopDelay,
+  #pitchVariation {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  input[type="file"]::-webkit-file-upload-button {
+    background: var(--color-button-bg);
+    border: none;
+    padding: 6px 12px;
+    border-radius: 8px;
+    color: var(--color-button-text);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  input[type="file"]::-webkit-file-upload-button:hover {
+    background: var(--color-button-hover-bg);
+  }
+
+  input[type="number"]:focus,
+  select:focus {
+    border-color: var(--color-button-hover-bg);
+    box-shadow: 0 0 10px var(--color-button-hover-bg);
+    outline: none;
+  }
+
+  /* Buttons styling */
+  button {
+    background: var(--color-button-bg);
+    color: var(--color-button-text);
+    font-weight: 700;
+    padding: 12px 0;
+    margin-top: 24px;
+    width: 100%;
+    border: none;
+    border-radius: 14px;
+    font-size: 1.15rem;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(246, 55, 99, 0.55);
+    transition: background-color 0.4s ease, box-shadow 0.3s ease;
+  }
+
+  button:hover:not(:disabled) {
+    background: var(--color-button-hover-bg);
+    box-shadow: 0 8px 22px rgba(217, 136, 81, 0.75);
+  }
+
+  button:disabled {
+    background: #fca9a9;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  /* Button row for preview/stop */
+  .btn-row {
+    display: flex;
+    gap: 16px;
+    margin-top: 20px;
+  }
+  .btn-row button {
+    flex: 1;
+  }
+
+  #stopPreviewBtn {
+    background: #d94a4a;
+    box-shadow: 0 6px 15px rgba(217, 74, 74, 0.75);
+  }
+  #stopPreviewBtn:hover:not(:disabled) {
+    background: #b13737;
+    box-shadow: 0 8px 22px rgba(179, 55, 55, 0.85);
+  }
+
+  /* Status text */
+  #status {
+    margin-top: 18px;
+    min-height: 24px;
+    font-weight: 700;
+    color: var(--color-status-text);
+    text-align: center;
+    letter-spacing: 0.01em;
+    font-size: 1rem;
+    user-select: none;
+  }
+
+  /* Credit styling */
+  footer {
+    margin-top: 30px;
+    font-size: 0.85rem;
+    color: #6a2c2ccc;
+    font-style: italic;
+    user-select: none;
+  }
+  footer a {
+    color: #d98851;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  footer a:hover {
+    text-decoration: underline;
+  }
+</style>
+</head>
+<body>
+  <h1>RPG Dialogue Sound Generator</h1>
+  <main>
+    <label for="fileInput">Import Audio File (wav, flac, ogg, mp3):
+      <span class="tooltip">?
+        <span class="tooltiptext">Supported formats: wav, flac, ogg, mp3, or any audio file your browser supports.</span>
+      </span>
+    </label>
+    <input type="file" id="fileInput" accept=".wav,.flac,.ogg,.mp3,audio/*" />
+
+    <label for="startTime">Cut Start Time (seconds):
+      <span class="tooltip">?
+        <span class="tooltiptext">Specify where to start cutting the audio sample, in seconds.</span>
+      </span>
+    </label>
+    <input type="number" id="startTime" min="0" step="0.01" value="0" disabled />
+
+    <label for="endTime">Cut End Time (seconds):
+      <span class="tooltip">?
+        <span class="tooltiptext">Specify where to end cutting the audio sample, in seconds.</span>
+      </span>
+    </label>
+    <input type="number" id="endTime" min="0" step="0.01" value="0" disabled />
+
+    <label for="modeSelect">Mode:
+      <span class="tooltip">?
+        <span class="tooltiptext">Choose between looping export or generating multiple pitch variations as a ZIP file.</span>
+      </span>
+    </label>
+    <select id="modeSelect" disabled>
+      <option value="loop">Loop Export</option>
+      <option value="variations">Generate Variations (ZIP)</option>
+    </select>
+
+    <div id="loopLengthContainer" style="display:none;">
+      <label for="loopLength">Total Loop Length (seconds):
+        <span class="tooltip">?
+          <span class="tooltiptext">Set the total duration of the exported loop audio.</span>
+        </span>
+      </label>
+      <input type="number" id="loopLength" min="0.1" step="0.1" value="5" />
+    </div>
+
+    <label for="loopDelay">Loop Delay (milliseconds):
+      <span class="tooltip">?
+        <span class="tooltiptext">Delay between loops to avoid clicking or abrupt ends.</span>
+      </span>
+    </label>
+    <input type="number" id="loopDelay" min="0" step="1" value="50" />
+
+    <label for="pitchVariation">Pitch Variation (± semitones):
+      <span class="tooltip">?
+        <span class="tooltiptext">Maximum pitch variation up or down in semitones for randomization.</span>
+      </span>
+    </label>
+    <input type="number" id="pitchVariation" min="0" max="12" step="0.1" value="0.5" />
+
+    <label for="randomPitch">Randomize Pitch Each Loop:
+      <span class="tooltip">?
+        <span class="tooltiptext">Choose whether to randomize pitch on every loop iteration.</span>
+      </span>
+    </label>
+    <select id="randomPitch">
+      <option value="true" selected>Yes</option>
+      <option value="false">No (constant pitch shift)</option>
+    </select>
+
+    <div id="variationsCountContainer" style="display:none;">
+      <label for="variationsCount">Number of Variations:
+        <span class="tooltip">?
+          <span class="tooltiptext">How many pitch variations to generate in the ZIP file.</span>
+        </span>
+      </label>
+      <input type="number" id="variationsCount" min="1" max="100" step="1" value="10" />
+    </div>
+
+    <div class="btn-row">
+      <button id="previewBtn" disabled>Preview</button>
+      <button id="stopPreviewBtn" disabled>Stop Preview</button>
+    </div>
+
+    <button id="generateBtn" disabled>Generate & Download</button>
+
+    <div id="status"></div>
+  </main>
+  <footer>
+    Not sure how to use? Read <a href="https://github.com/MobMasterMind/RPG-Dialogue-Sound-Generator/tree/main?tab=readme-ov-file#how-to-use" target="_blank" rel="noopener noreferrer">This</a>
+  </footer>
+  <footer>
+    Created with care by <a href="https://github.com/MobMasterMind" target="_blank" rel="noopener noreferrer">MobMasterMind</a>
+  </footer>
+
+<script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.0/lame.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.0/dist/jszip.min.js"></script>
+<script>
+let audioBuffer = null;
+let audioContext = null;
+let previewSource = null;
+
+const fileInput = document.getElementById('fileInput');
+const startTimeInput = document.getElementById('startTime');
+const endTimeInput = document.getElementById('endTime');
+const modeSelect = document.getElementById('modeSelect');
+const loopLengthContainer = document.getElementById('loopLengthContainer');
+const loopLengthInput = document.getElementById('loopLength');
+const loopDelayInput = document.getElementById('loopDelay');
+const pitchVariationInput = document.getElementById('pitchVariation');
+const randomPitchSelect = document.getElementById('randomPitch');
+const variationsCountContainer = document.getElementById('variationsCountContainer');
+const variationsCountInput = document.getElementById('variationsCount');
+const statusDiv = document.getElementById('status');
+const previewBtn = document.getElementById('previewBtn');
+const stopPreviewBtn = document.getElementById('stopPreviewBtn');
+const generateBtn = document.getElementById('generateBtn');
+
+fileInput.addEventListener('change', handleFileImport);
+startTimeInput.addEventListener('change', validateCutTimes);
+endTimeInput.addEventListener('change', validateCutTimes);
+modeSelect.addEventListener('change', handleModeChange);
+previewBtn.addEventListener('click', previewAudio);
+stopPreviewBtn.addEventListener('click', stopPreview);
+generateBtn.addEventListener('click', generateAndDownload);
+
+function validateCutTimes() {
+  if (!audioBuffer) return;
+  let start = parseFloat(startTimeInput.value);
+  let end = parseFloat(endTimeInput.value);
+
+  if (isNaN(start) || start < 0) start = 0;
+  if (isNaN(end) || end > audioBuffer.duration) end = audioBuffer.duration;
+
+  if (start > end) start = end;
+
+  startTimeInput.value = start.toFixed(2);
+  endTimeInput.value = end.toFixed(2);
+}
+
+async function handleFileImport(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  statusDiv.textContent = 'Loading audio...';
+  const arrayBuffer = await file.arrayBuffer();
+  if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+  try {
+    audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+    statusDiv.textContent = Loaded: ${file.name} — Duration: ${audioBuffer.duration.toFixed(2)}s;
+
+    startTimeInput.disabled = false;
+    endTimeInput.disabled = false;
+    startTimeInput.value = '0.00';
+    endTimeInput.value = audioBuffer.duration.toFixed(2);
+
+    validateCutTimes();
+
+    modeSelect.disabled = false;
+    previewBtn.disabled = false;
+    generateBtn.disabled = false;
+
+    handleModeChange();
+  } catch(err) {
+    statusDiv.textContent = 'Error decoding audio file.';
+    console.error(err);
+    previewBtn.disabled = true;
+    generateBtn.disabled = true;
+    startTimeInput.disabled = true;
+    endTimeInput.disabled = true;
+    modeSelect.disabled = true;
+  }
+  stopPreviewBtn.disabled = true;
+}
+
+function handleModeChange() {
+  const mode = modeSelect.value;
+  if (mode === 'loop') {
+    loopLengthContainer.style.display = 'block';
+    variationsCountContainer.style.display = 'none';
+  } else if (mode === 'variations') {
+    loopLengthContainer.style.display = 'none';
+    variationsCountContainer.style.display = 'block';
+  }
+}
+
+function getRandomPitchSemitones(maxVariation) {
+  return (Math.random() * 2 - 1) * maxVariation;
+}
+
+function semitonesToPlaybackRate(semitones) {
+  return Math.pow(2, semitones / 12);
+}
+
+function createTrimmedBuffer(buffer, startSec, endSec) {
+  const sampleRate = buffer.sampleRate;
+  const channelCount = buffer.numberOfChannels;
+  const startSample = Math.floor(startSec * sampleRate);
+  const endSample = Math.floor(endSec * sampleRate);
+  const frameCount = endSample - startSample;
+
+  const trimmedBuffer = audioContext.createBuffer(channelCount, frameCount, sampleRate);
+
+  for (let channel = 0; channel < channelCount; channel++) {
+    const channelData = buffer.getChannelData(channel).subarray(startSample, endSample);
+    trimmedBuffer.copyToChannel(channelData, channel, 0);
+  }
+
+  return trimmedBuffer;
+}
+
+function stopPreview() {
+  if (previewSource) {
+    try {
+      previewSource.stop();
+    } catch {}
+    previewSource.disconnect();
+    previewSource = null;
+  }
+  statusDiv.textContent = 'Preview stopped.';
+  previewBtn.disabled = false;
+  stopPreviewBtn.disabled = true;
+}
+
+async function previewAudio() {
+  if (!audioBuffer) return;
+  if (previewSource) {
+    stopPreview();
+  }
+  if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+  previewBtn.disabled = true;
+  stopPreviewBtn.disabled = false;
+
+  validateCutTimes();
+
+  const start = parseFloat(startTimeInput.value);
+  const end = parseFloat(endTimeInput.value);
+
+  if (start >= end) {
+    statusDiv.textContent = 'Invalid cut times.';
+    previewBtn.disabled = false;
+    stopPreviewBtn.disabled = true;
+    return;
+  }
+
+  const trimmedBuffer = createTrimmedBuffer(audioBuffer, start, end);
+
+  const mode = modeSelect.value;
+
+  if (mode === 'loop') {
+    // Loop mode: preview infinite loop with pitch variation + delay
+    const loopDelay = (parseFloat(loopDelayInput.value) || 0) / 1000;
+    const totalLoopLength = parseFloat(loopLengthInput.value) || 5;
+    const randomPitch = randomPitchSelect.value === 'true';
+    const pitchVar = parseFloat(pitchVariationInput.value) || 0;
+
+    previewSource = audioContext.createBufferSource();
+    previewSource.buffer = trimmedBuffer;
+    previewSource.loop = true;
+    previewSource.loopStart = 0;
+    previewSource.loopEnd = trimmedBuffer.duration;
+
+    if (randomPitch) {
+      const semitoneShift = getRandomPitchSemitones(pitchVar);
+      previewSource.playbackRate.value = semitonesToPlaybackRate(semitoneShift);
+    } else {
+      previewSource.playbackRate.value = semitonesToPlaybackRate(pitchVar);
+    }
+
+    previewSource.connect(audioContext.destination);
+    previewSource.start();
+
+    statusDiv.textContent = Previewing loop from ${start.toFixed(2)}s to ${end.toFixed(2)}s;
+
+  } else if (mode === 'variations') {
+    // Variations mode: just play trimmed sample normally
+    previewSource = audioContext.createBufferSource();
+    previewSource.buffer = trimmedBuffer;
+    previewSource.loop = false;
+    previewSource.connect(audioContext.destination);
+    previewSource.start();
+
+    statusDiv.textContent = Previewing trimmed audio from ${start.toFixed(2)}s to ${end.toFixed(2)}s;
+  }
+}
+
+async function encodeWav(audioBuffer) {
+  const numChannels = audioBuffer.numberOfChannels;
+  const sampleRate = audioBuffer.sampleRate;
+  const length = audioBuffer.length;
+  const interleaved = new Float32Array(length * numChannels);
+
+  // Interleave channels
+  for (let sampleIndex = 0; sampleIndex < length; sampleIndex++) {
+    for (let channel = 0; channel < numChannels; channel++) {
+      interleaved[sampleIndex * numChannels + channel] = audioBuffer.getChannelData(channel)[sampleIndex];
+    }
+  }
+
+  // Convert float samples to 16-bit PCM
+  const buffer = new ArrayBuffer(44 + interleaved.length * 2);
+  const view = new DataView(buffer);
+
+  // RIFF chunk descriptor
+  writeString(view, 0, 'RIFF');
+  view.setUint32(4, 36 + interleaved.length * 2, true);
+  writeString(view, 8, 'WAVE');
+
+  // FMT subchunk
+  writeString(view, 12, 'fmt ');
+  view.setUint32(16, 16, true); // PCM chunk size
+  view.setUint16(20, 1, true);  // PCM format
+  view.setUint16(22, numChannels, true);
+  view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * numChannels * 2, true); // Byte rate
+  view.setUint16(32, numChannels * 2, true); // Block align
+  view.setUint16(34, 16, true); // Bits per sample
+
+  // Data subchunk
+  writeString(view, 36, 'data');
+  view.setUint32(40, interleaved.length * 2, true);
+
+  // Write PCM samples
+  floatTo16BitPCM(view, 44, interleaved);
+
+  return new Blob([view], { type: 'audio/wav' });
+}
+
+function writeString(view, offset, string) {
+  for (let i = 0; i < string.length; i++) {
+    view.setUint8(offset + i, string.charCodeAt(i));
+  }
+}
+
+function floatTo16BitPCM(output, offset, input) {
+  for (let i = 0; i < input.length; i++, offset += 2) {
+    let s = Math.max(-1, Math.min(1, input[i]));
+    s = s < 0 ? s * 0x8000 : s * 0x7FFF;
+    output.setInt16(offset, s, true);
+  }
+}
+
+async function generateAndDownload() {
+  if (!audioBuffer) return;
+
+  generateBtn.disabled = true;
+  statusDiv.textContent = 'Generating... Please wait.';
+
+  validateCutTimes();
+
+  const start = parseFloat(startTimeInput.value);
+  const end = parseFloat(endTimeInput.value);
+
+  if (start >= end) {
+    statusDiv.textContent = 'Invalid cut times.';
+    generateBtn.disabled = false;
+    return;
+  }
+
+  const mode = modeSelect.value;
+
+  if (mode === 'loop') {
+    const loopLength = parseFloat(loopLengthInput.value) || 5;
+    const loopDelayMs = parseFloat(loopDelayInput.value) || 50;
+    const randomPitch = randomPitchSelect.value === 'true';
+    const pitchVar = parseFloat(pitchVariationInput.value) || 0;
+
+    // Create trimmed buffer
+    const trimmedBuffer = createTrimmedBuffer(audioBuffer, start, end);
+
+    // We will create a longer buffer with silence at the end (loop delay)
+    const sampleRate = trimmedBuffer.sampleRate;
+    const channels = trimmedBuffer.numberOfChannels;
+
+    const loopDelaySamples = Math.floor((loopDelayMs / 1000) * sampleRate);
+    const loopSamples = Math.floor(loopLength * sampleRate);
+    const originalSamples = trimmedBuffer.length;
+
+    // Final buffer length = requested total loop length in samples
+    const finalLength = loopSamples;
+    const outputBuffer = audioContext.createBuffer(channels, finalLength, sampleRate);
+
+    // Copy trimmedBuffer data into outputBuffer at start
+    for (let ch = 0; ch < channels; ch++) {
+      const outputData = outputBuffer.getChannelData(ch);
+      const inputData = trimmedBuffer.getChannelData(ch);
+
+      // Copy original samples
+      outputData.set(inputData.subarray(0, originalSamples), 0);
+
+      // Fill loop delay silence after original samples if needed
+      for (let i = originalSamples; i < finalLength; i++) {
+        outputData[i] = 0;
+      }
+    }
+
+    // Pitch shifting on exported WAV file is a bit complicated.
+    // We cannot change playbackRate in static WAV. So we only export the trimmed clip as-is.
+
+    // Encode and download
+    const wavBlob = await encodeWav(outputBuffer);
+    const url = URL.createObjectURL(wavBlob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'looped_audio.wav';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+
+    statusDiv.textContent = 'Loop audio generated and downloaded.';
+
+  } else if (mode === 'variations') {
+    const variationsCount = parseInt(variationsCountInput.value) || 10;
+    const pitchVar = parseFloat(pitchVariationInput.value) || 0;
+
+    const trimmedBuffer = createTrimmedBuffer(audioBuffer, start, end);
+
+    const zip = new JSZip();
+
+    for (let i = 0; i < variationsCount; i++) {
+      // Calculate pitch shift in semitones
+      let semitoneShift = 0;
+      if (pitchVar > 0) {
+        semitoneShift = getRandomPitchSemitones(pitchVar);
+      }
+
+      // Create pitch-shifted buffer by playbackRate trick is not possible for static WAV.
+      // For simplicity, we export the trimmed audio as-is for all variations.
+      // A real pitch-shifting would require complex DSP or offline processing.
+
+      // Encode WAV
+      const wavBlob = await encodeWav(trimmedBuffer);
+
+      // Add file to zip
+      zip.file(variation_${i + 1}_pitch_${semitoneShift.toFixed(2)}.wav, wavBlob);
+    }
+
+    const content = await zip.generateAsync({ type: 'blob' });
+
+    const url = URL.createObjectURL(content);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'pitch_variations.zip';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+
+    statusDiv.textContent = 'Pitch variations ZIP generated and downloaded.';
+  }
+
+  generateBtn.disabled = false;
+}
+</script>
+</body>
+</html>

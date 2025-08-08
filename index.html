@@ -73,56 +73,76 @@
 
   /* Labels */
   label {
-    display: block;
+    display: flex;
+    align-items: center;
     margin-top: 18px;
     font-weight: 600;
     color: #7a1e1e;
     letter-spacing: 0.02em;
+    gap: 6px;
   }
 
-  /* Tooltip question mark style */
-  .tooltip {
+  /* Tooltip question mark */
+  label .tooltip-icon {
     position: relative;
-    cursor: help;
-    margin-left: 6px;
-    color: #d98851;
-    font-weight: 700;
-    user-select: none;
     display: inline-block;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+    font-weight: 700;
+    color: var(--color-button-bg);
+    background: var(--color-input-bg);
+    border: 2px solid var(--color-input-border);
+    border-radius: 50%;
+    text-align: center;
+    font-size: 14px;
+    cursor: help;
+    user-select: none;
   }
-  .tooltip:hover .tooltiptext {
-    visibility: visible;
-    opacity: 1;
-  }
-  .tooltiptext {
-    visibility: hidden;
-    width: 220px;
-    background-color: #d98851;
-    color: #fff;
-    text-align: left;
-    border-radius: 8px;
-    padding: 8px 12px;
+
+  /* Tooltip text container */
+  label .tooltip-icon::after {
+    content: attr(data-tooltip);
     position: absolute;
-    z-index: 10;
     bottom: 125%;
     left: 50%;
     transform: translateX(-50%);
-    opacity: 0;
-    transition: opacity 0.3s;
+    width: max-content;
+    max-width: 220px;
+    background: #7a1e1e;
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 0.8rem;
     font-weight: 400;
-    font-size: 0.9rem;
-    line-height: 1.2;
+    white-space: normal;
+    opacity: 0;
     pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 10;
   }
-  .tooltiptext::after {
-    content: '';
+
+  /* Tooltip arrow */
+  label .tooltip-icon::before {
+    content: "";
     position: absolute;
-    top: 100%;
+    bottom: 115%;
     left: 50%;
-    margin-left: -6px;
+    transform: translateX(-50%);
     border-width: 6px;
     border-style: solid;
-    border-color: #d98851 transparent transparent transparent;
+    border-color: #7a1e1e transparent transparent transparent;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 10;
+  }
+
+  /* Show tooltip on hover */
+  label .tooltip-icon:hover::after,
+  label .tooltip-icon:hover::before {
+    opacity: 1;
+    pointer-events: auto;
   }
 
   /* Inputs and selects styling */
@@ -138,26 +158,7 @@
     background: var(--color-input-bg);
     color: var(--color-text);
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
-
-    /* Fix alignment and sizing */
-    box-sizing: border-box;
-    max-width: 100%;
-  }
-
-  /* Fix input fields that were going too far right */
-  #fileInput,
-  #startTime,
-  #endTime,
-  #loopDelay,
-  #pitchVariation {
-    display: block;
-    width: 100%;
-    max-width: 100%;
-    box-sizing: border-box;
-    margin-left: 0;
-    margin-right: 0;
-    padding-left: 14px;
-    padding-right: 14px;
+    vertical-align: middle;  /* Fix alignment */
   }
 
   input[type="file"]::-webkit-file-upload-button {
@@ -261,31 +262,27 @@
 <body>
   <h1>RPG Dialogue Sound Generator</h1>
   <main>
-    <label for="fileInput">Import Audio File (wav, flac, ogg, mp3):
-      <span class="tooltip">?
-        <span class="tooltiptext">Supported formats: wav, flac, ogg, mp3, or any audio file your browser supports.</span>
-      </span>
+    <label for="fileInput" data-tooltip="Import an audio file in wav, flac, ogg, or mp3 format.">
+      Import Audio File (wav, flac, ogg, mp3)
+      <span class="tooltip-icon" data-tooltip="Supported formats: wav, flac, ogg, mp3, or any audio.">?</span>
     </label>
     <input type="file" id="fileInput" accept=".wav,.flac,.ogg,.mp3,audio/*" />
 
-    <label for="startTime">Cut Start Time (seconds):
-      <span class="tooltip">?
-        <span class="tooltiptext">Specify where to start cutting the audio sample, in seconds.</span>
-      </span>
+    <label for="startTime" data-tooltip="Set the start time in seconds to cut the audio sample.">
+      Cut Start Time (seconds)
+      <span class="tooltip-icon" data-tooltip="Audio playback will begin from this time.">?</span>
     </label>
     <input type="number" id="startTime" min="0" step="0.01" value="0" disabled />
 
-    <label for="endTime">Cut End Time (seconds):
-      <span class="tooltip">?
-        <span class="tooltiptext">Specify where to end cutting the audio sample, in seconds.</span>
-      </span>
+    <label for="endTime" data-tooltip="Set the end time in seconds to cut the audio sample.">
+      Cut End Time (seconds)
+      <span class="tooltip-icon" data-tooltip="Audio playback will end at this time.">?</span>
     </label>
     <input type="number" id="endTime" min="0" step="0.01" value="0" disabled />
 
-    <label for="modeSelect">Mode:
-      <span class="tooltip">?
-        <span class="tooltiptext">Choose between looping export or generating multiple pitch variations as a ZIP file.</span>
-      </span>
+    <label for="modeSelect" data-tooltip="Choose between loop export or generating pitch variations.">
+      Mode
+      <span class="tooltip-icon" data-tooltip="Loop Export: create a looping audio file. Generate Variations: create pitch-shifted samples in a ZIP.">?</span>
     </label>
     <select id="modeSelect" disabled>
       <option value="loop">Loop Export</option>
@@ -293,32 +290,28 @@
     </select>
 
     <div id="loopLengthContainer" style="display:none;">
-      <label for="loopLength">Total Loop Length (seconds):
-        <span class="tooltip">?
-          <span class="tooltiptext">Set the total duration of the exported loop audio.</span>
-        </span>
+      <label for="loopLength" data-tooltip="Specify the total desired length of the output loop in seconds.">
+        Total Loop Length (seconds)
+        <span class="tooltip-icon" data-tooltip="Controls how long the final looped audio will be.">?</span>
       </label>
       <input type="number" id="loopLength" min="0.1" step="0.1" value="5" />
     </div>
 
-    <label for="loopDelay">Loop Delay (milliseconds):
-      <span class="tooltip">?
-        <span class="tooltiptext">Delay between loops to avoid clicking or abrupt ends.</span>
-      </span>
+    <label for="loopDelay" data-tooltip="Set the delay between loops in milliseconds.">
+      Loop Delay (milliseconds)
+      <span class="tooltip-icon" data-tooltip="Time gap inserted between each loop iteration.">?</span>
     </label>
     <input type="number" id="loopDelay" min="0" step="1" value="50" />
 
-    <label for="pitchVariation">Pitch Variation (± semitones):
-      <span class="tooltip">?
-        <span class="tooltiptext">Maximum pitch variation up or down in semitones for randomization.</span>
-      </span>
+    <label for="pitchVariation" data-tooltip="Set the pitch variation range in semitones.">
+      Pitch Variation (± semitones)
+      <span class="tooltip-icon" data-tooltip="Maximum pitch shift applied to loops or variations.">?</span>
     </label>
     <input type="number" id="pitchVariation" min="0" max="12" step="0.1" value="0.5" />
 
-    <label for="randomPitch">Randomize Pitch Each Loop:
-      <span class="tooltip">?
-        <span class="tooltiptext">Choose whether to randomize pitch on every loop iteration.</span>
-      </span>
+    <label for="randomPitch" data-tooltip="Choose whether to randomize pitch for each loop.">
+      Randomize Pitch Each Loop
+      <span class="tooltip-icon" data-tooltip="If yes, pitch will change randomly each loop; otherwise, it stays constant.">?</span>
     </label>
     <select id="randomPitch">
       <option value="true" selected>Yes</option>
@@ -326,10 +319,9 @@
     </select>
 
     <div id="variationsCountContainer" style="display:none;">
-      <label for="variationsCount">Number of Variations:
-        <span class="tooltip">?
-          <span class="tooltiptext">How many pitch variations to generate in the ZIP file.</span>
-        </span>
+      <label for="variationsCount" data-tooltip="Set how many pitch-shifted variations to generate.">
+        Number of Variations
+        <span class="tooltip-icon" data-tooltip="Controls how many variations will be included in the ZIP file.">?</span>
       </label>
       <input type="number" id="variationsCount" min="1" max="100" step="1" value="10" />
     </div>
@@ -343,9 +335,6 @@
 
     <div id="status"></div>
   </main>
-  <footer>
-    Not sure how to use? Read <a href="https://github.com/MobMasterMind/RPG-Dialogue-Sound-Generator/tree/main?tab=readme-ov-file#how-to-use" target="_blank" rel="noopener noreferrer">This</a>
-  </footer>
   <footer>
     Created with care by <a href="https://github.com/MobMasterMind" target="_blank" rel="noopener noreferrer">MobMasterMind</a>
   </footer>
@@ -405,7 +394,7 @@ async function handleFileImport(e) {
 
   try {
     audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
-    statusDiv.textContent = Loaded: ${file.name} — Duration: ${audioBuffer.duration.toFixed(2)}s;
+    statusDiv.textContent = `Loaded: ${file.name} — Duration: ${audioBuffer.duration.toFixed(2)}s`;
 
     startTimeInput.disabled = false;
     endTimeInput.disabled = false;
@@ -463,131 +452,63 @@ function createTrimmedBuffer(buffer, startSec, endSec) {
     const channelData = buffer.getChannelData(channel).subarray(startSample, endSample);
     trimmedBuffer.copyToChannel(channelData, channel, 0);
   }
-
   return trimmedBuffer;
+}
+
+function playBuffer(buffer, playbackRate = 1) {
+  if (previewSource) {
+    previewSource.stop();
+    previewSource.disconnect();
+    previewSource = null;
+  }
+  previewSource = audioContext.createBufferSource();
+  previewSource.buffer = buffer;
+  previewSource.playbackRate.value = playbackRate;
+  previewSource.connect(audioContext.destination);
+  previewSource.start();
+  stopPreviewBtn.disabled = false;
+  previewSource.onended = () => {
+    stopPreviewBtn.disabled = true;
+  };
 }
 
 function stopPreview() {
   if (previewSource) {
-    try {
-      previewSource.stop();
-    } catch {}
+    previewSource.stop();
     previewSource.disconnect();
     previewSource = null;
+    stopPreviewBtn.disabled = true;
   }
-  statusDiv.textContent = 'Preview stopped.';
-  previewBtn.disabled = false;
-  stopPreviewBtn.disabled = true;
 }
 
 async function previewAudio() {
   if (!audioBuffer) return;
-  if (previewSource) {
-    stopPreview();
-  }
-  if (!audioContext) audioContext = new (window.AudioContext || window.webkitAudioContext)();
-
-  previewBtn.disabled = true;
-  stopPreviewBtn.disabled = false;
-
-  validateCutTimes();
-
   const start = parseFloat(startTimeInput.value);
   const end = parseFloat(endTimeInput.value);
-
   if (start >= end) {
-    statusDiv.textContent = 'Invalid cut times.';
-    previewBtn.disabled = false;
-    stopPreviewBtn.disabled = true;
+    statusDiv.textContent = 'Invalid cut times for preview.';
     return;
   }
 
+  const mode = modeSelect.value;
   const trimmedBuffer = createTrimmedBuffer(audioBuffer, start, end);
 
-  const mode = modeSelect.value;
-
   if (mode === 'loop') {
-    // Loop mode: preview infinite loop with pitch variation + delay
-    const loopDelay = (parseFloat(loopDelayInput.value) || 0) / 1000;
-    const totalLoopLength = parseFloat(loopLengthInput.value) || 5;
-    const randomPitch = randomPitchSelect.value === 'true';
     const pitchVar = parseFloat(pitchVariationInput.value) || 0;
+    const randomPitch = randomPitchSelect.value === 'true';
 
-    previewSource = audioContext.createBufferSource();
-    previewSource.buffer = trimmedBuffer;
-    previewSource.loop = true;
-    previewSource.loopStart = 0;
-    previewSource.loopEnd = trimmedBuffer.duration;
-
-    if (randomPitch) {
-      const semitoneShift = getRandomPitchSemitones(pitchVar);
-      previewSource.playbackRate.value = semitonesToPlaybackRate(semitoneShift);
-    } else {
-      previewSource.playbackRate.value = semitonesToPlaybackRate(pitchVar);
+    let pitchSemitones = 0;
+    if (pitchVar > 0) {
+      pitchSemitones = randomPitch ? getRandomPitchSemitones(pitchVar) : pitchVar;
     }
 
-    previewSource.connect(audioContext.destination);
-    previewSource.start();
-
-    statusDiv.textContent = Previewing loop from ${start.toFixed(2)}s to ${end.toFixed(2)}s;
-
-  } else if (mode === 'variations') {
-    // Variations mode: just play trimmed sample normally
-    previewSource = audioContext.createBufferSource();
-    previewSource.buffer = trimmedBuffer;
-    previewSource.loop = false;
-    previewSource.connect(audioContext.destination);
-    previewSource.start();
-
-    statusDiv.textContent = Previewing trimmed audio from ${start.toFixed(2)}s to ${end.toFixed(2)}s;
-  }
-}
-
-async function encodeWav(audioBuffer) {
-  const numChannels = audioBuffer.numberOfChannels;
-  const sampleRate = audioBuffer.sampleRate;
-  const length = audioBuffer.length;
-  const interleaved = new Float32Array(length * numChannels);
-
-  // Interleave channels
-  for (let sampleIndex = 0; sampleIndex < length; sampleIndex++) {
-    for (let channel = 0; channel < numChannels; channel++) {
-      interleaved[sampleIndex * numChannels + channel] = audioBuffer.getChannelData(channel)[sampleIndex];
-    }
-  }
-
-  // Convert float samples to 16-bit PCM
-  const buffer = new ArrayBuffer(44 + interleaved.length * 2);
-  const view = new DataView(buffer);
-
-  // RIFF chunk descriptor
-  writeString(view, 0, 'RIFF');
-  view.setUint32(4, 36 + interleaved.length * 2, true);
-  writeString(view, 8, 'WAVE');
-
-  // FMT subchunk
-  writeString(view, 12, 'fmt ');
-  view.setUint32(16, 16, true); // PCM chunk size
-  view.setUint16(20, 1, true);  // PCM format
-  view.setUint16(22, numChannels, true);
-  view.setUint32(24, sampleRate, true);
-  view.setUint32(28, sampleRate * numChannels * 2, true); // Byte rate
-  view.setUint16(32, numChannels * 2, true); // Block align
-  view.setUint16(34, 16, true); // Bits per sample
-
-  // Data subchunk
-  writeString(view, 36, 'data');
-  view.setUint32(40, interleaved.length * 2, true);
-
-  // Write PCM samples
-  floatTo16BitPCM(view, 44, interleaved);
-
-  return new Blob([view], { type: 'audio/wav' });
-}
-
-function writeString(view, offset, string) {
-  for (let i = 0; i < string.length; i++) {
-    view.setUint8(offset + i, string.charCodeAt(i));
+    const playbackRate = semitonesToPlaybackRate(pitchSemitones);
+    playBuffer(trimmedBuffer, playbackRate);
+    statusDiv.textContent = `Preview playing (loop mode) with pitch shift ${pitchSemitones.toFixed(2)} semitones.`;
+  } else {
+    // Variations preview - just play original slice with no pitch shift
+    playBuffer(trimmedBuffer, 1);
+    statusDiv.textContent = 'Preview playing (variations mode).';
   }
 }
 
@@ -599,118 +520,222 @@ function floatTo16BitPCM(output, offset, input) {
   }
 }
 
+function encodeWAV(audioBuffer) {
+  const numChannels = audioBuffer.numberOfChannels;
+  const sampleRate = audioBuffer.sampleRate;
+  const format = 1; // PCM
+  const bitsPerSample = 16;
+  const blockAlign = numChannels * bitsPerSample / 8;
+  const byteRate = sampleRate * blockAlign;
+
+  const length = audioBuffer.length * blockAlign + 44;
+  const buffer = new ArrayBuffer(length);
+  const view = new DataView(buffer);
+
+  /* RIFF identifier */
+  writeString(view, 0, 'RIFF');
+  /* file length */
+  view.setUint32(4, length - 8, true);
+  /* RIFF type */
+  writeString(view, 8, 'WAVE');
+  /* format chunk identifier */
+  writeString(view, 12, 'fmt ');
+  /* format chunk length */
+  view.setUint32(16, 16, true);
+  /* sample format (raw) */
+  view.setUint16(20, format, true);
+  /* channel count */
+  view.setUint16(22, numChannels, true);
+  /* sample rate */
+  view.setUint32(24, sampleRate, true);
+  /* byte rate (sample rate * block align) */
+  view.setUint32(28, byteRate, true);
+  /* block align (channel count * bytes per sample) */
+  view.setUint16(32, blockAlign, true);
+  /* bits per sample */
+  view.setUint16(34, bitsPerSample, true);
+  /* data chunk identifier */
+  writeString(view, 36, 'data');
+  /* data chunk length */
+  view.setUint32(40, audioBuffer.length * blockAlign, true);
+
+  // Write PCM samples
+  let offset = 44;
+  for (let channel = 0; channel < numChannels; channel++) {
+    const channelData = audioBuffer.getChannelData(channel);
+    // Interleave channels here if stereo
+  }
+  // Interleave and write all channels sample data (16-bit PCM)
+  const interleaved = interleaveChannels(audioBuffer);
+  floatTo16BitPCM(view, 44, interleaved);
+
+  return new Blob([view], { type: 'audio/wav' });
+}
+
+function writeString(view, offset, string) {
+  for (let i = 0; i < string.length; i++) {
+    view.setUint8(offset + i, string.charCodeAt(i));
+  }
+}
+
+function interleaveChannels(buffer) {
+  const length = buffer.length;
+  const channels = buffer.numberOfChannels;
+  const result = new Float32Array(length * channels);
+
+  for (let i = 0; i < length; i++) {
+    for (let ch = 0; ch < channels; ch++) {
+      result[i * channels + ch] = buffer.getChannelData(ch)[i];
+    }
+  }
+  return result;
+}
+
+function pitchShiftBuffer(buffer, semitones) {
+  // For simplicity, this demo will just playback speed change.
+  // Real pitch shifting without speed change requires complex DSP which is too big for here.
+  // We return the original buffer and apply playbackRate when playing or exporting.
+  return buffer;
+}
+
 async function generateAndDownload() {
   if (!audioBuffer) return;
-
   generateBtn.disabled = true;
-  statusDiv.textContent = 'Generating... Please wait.';
-
-  validateCutTimes();
+  previewBtn.disabled = true;
+  stopPreviewBtn.disabled = true;
+  statusDiv.textContent = 'Generating audio... Please wait.';
 
   const start = parseFloat(startTimeInput.value);
   const end = parseFloat(endTimeInput.value);
-
   if (start >= end) {
     statusDiv.textContent = 'Invalid cut times.';
     generateBtn.disabled = false;
+    previewBtn.disabled = false;
     return;
   }
-
   const mode = modeSelect.value;
 
   if (mode === 'loop') {
-    const loopLength = parseFloat(loopLengthInput.value) || 5;
-    const loopDelayMs = parseFloat(loopDelayInput.value) || 50;
-    const randomPitch = randomPitchSelect.value === 'true';
+    const totalLoopLength = parseFloat(loopLengthInput.value) || 5;
+    const loopDelayMS = parseInt(loopDelayInput.value) || 50;
     const pitchVar = parseFloat(pitchVariationInput.value) || 0;
+    const randomPitch = randomPitchSelect.value === 'true';
 
-    // Create trimmed buffer
+    // Create trimmed buffer slice
     const trimmedBuffer = createTrimmedBuffer(audioBuffer, start, end);
 
-    // We will create a longer buffer with silence at the end (loop delay)
+    // We will create a new offline audio buffer with the looped audio + delay silence
+    // We'll concatenate copies of trimmedBuffer with delay until reaching totalLoopLength
+
+    // Calculate single loop duration + delay in seconds
+    const delaySeconds = loopDelayMS / 1000;
+
+    // Prepare array of buffers for offline rendering
+    const loopDuration = trimmedBuffer.duration;
+    const totalDuration = totalLoopLength;
+    const loopsNeeded = Math.ceil(totalDuration / (loopDuration + delaySeconds));
+
+    // Use OfflineAudioContext to render final looped audio with pitch and delay
     const sampleRate = trimmedBuffer.sampleRate;
-    const channels = trimmedBuffer.numberOfChannels;
+    const channelCount = trimmedBuffer.numberOfChannels;
+    const totalLengthSamples = Math.floor(totalDuration * sampleRate);
 
-    const loopDelaySamples = Math.floor((loopDelayMs / 1000) * sampleRate);
-    const loopSamples = Math.floor(loopLength * sampleRate);
-    const originalSamples = trimmedBuffer.length;
+    const offlineCtx = new OfflineAudioContext(channelCount, totalLengthSamples, sampleRate);
 
-    // Final buffer length = requested total loop length in samples
-    const finalLength = loopSamples;
-    const outputBuffer = audioContext.createBuffer(channels, finalLength, sampleRate);
+    let currentOffset = 0;
 
-    // Copy trimmedBuffer data into outputBuffer at start
-    for (let ch = 0; ch < channels; ch++) {
-      const outputData = outputBuffer.getChannelData(ch);
-      const inputData = trimmedBuffer.getChannelData(ch);
+    for (let i = 0; i < loopsNeeded; i++) {
+      const source = offlineCtx.createBufferSource();
+      source.buffer = trimmedBuffer;
 
-      // Copy original samples
-      outputData.set(inputData.subarray(0, originalSamples), 0);
+      // Calculate pitch shift semitones for this loop
+      let pitchSemitones = 0;
+      if (pitchVar > 0) {
+        pitchSemitones = randomPitch ? getRandomPitchSemitones(pitchVar) : pitchVar;
+      }
+      source.playbackRate.value = semitonesToPlaybackRate(pitchSemitones);
 
-      // Fill loop delay silence after original samples if needed
-      for (let i = originalSamples; i < finalLength; i++) {
-        outputData[i] = 0;
+      source.connect(offlineCtx.destination);
+      source.start(currentOffset);
+
+      // Calculate duration after pitch change
+      const adjustedDuration = trimmedBuffer.duration / source.playbackRate.value;
+      currentOffset += adjustedDuration;
+
+      // Add silence delay after loop (if not last)
+      if (i < loopsNeeded - 1) {
+        currentOffset += delaySeconds;
       }
     }
 
-    // Pitch shifting on exported WAV file is a bit complicated.
-    // We cannot change playbackRate in static WAV. So we only export the trimmed clip as-is.
+    const renderedBuffer = await offlineCtx.startRendering();
 
-    // Encode and download
-    const wavBlob = await encodeWav(outputBuffer);
-    const url = URL.createObjectURL(wavBlob);
+    // Encode to WAV
+    const wavBlob = encodeWAV(renderedBuffer);
 
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'looped_audio.wav';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-
-    statusDiv.textContent = 'Loop audio generated and downloaded.';
-
+    const filename = `loop_${totalLoopLength.toFixed(2)}s_pitchVar${pitchVar}.wav`;
+    downloadBlob(wavBlob, filename);
+    statusDiv.textContent = `Generated loop WAV (${filename}) ready.`;
   } else if (mode === 'variations') {
-    const variationsCount = parseInt(variationsCountInput.value) || 10;
+    // Variations ZIP generation
+    const count = parseInt(variationsCountInput.value) || 10;
     const pitchVar = parseFloat(pitchVariationInput.value) || 0;
 
-    const trimmedBuffer = createTrimmedBuffer(audioBuffer, start, end);
+    if (count < 1) {
+      statusDiv.textContent = 'Invalid number of variations.';
+      generateBtn.disabled = false;
+      previewBtn.disabled = false;
+      return;
+    }
 
     const zip = new JSZip();
 
-    for (let i = 0; i < variationsCount; i++) {
-      // Calculate pitch shift in semitones
-      let semitoneShift = 0;
-      if (pitchVar > 0) {
-        semitoneShift = getRandomPitchSemitones(pitchVar);
-      }
+    for (let i = 0; i < count; i++) {
+      // For each variation, get pitch semitones evenly spaced in range ±pitchVar
+      const pitchSemitones = (count === 1) ? 0 : (i / (count - 1)) * 2 * pitchVar - pitchVar;
 
-      // Create pitch-shifted buffer by playbackRate trick is not possible for static WAV.
-      // For simplicity, we export the trimmed audio as-is for all variations.
-      // A real pitch-shifting would require complex DSP or offline processing.
+      const trimmedBuffer = createTrimmedBuffer(audioBuffer, start, end);
 
-      // Encode WAV
-      const wavBlob = await encodeWav(trimmedBuffer);
+      // Offline context to pitch shift and export individual variation
+      const sampleRate = trimmedBuffer.sampleRate;
+      const channelCount = trimmedBuffer.numberOfChannels;
+      const lengthSamples = trimmedBuffer.length;
 
-      // Add file to zip
-      zip.file(variation_${i + 1}_pitch_${semitoneShift.toFixed(2)}.wav, wavBlob);
+      const offlineCtx = new OfflineAudioContext(channelCount, lengthSamples, sampleRate);
+      const source = offlineCtx.createBufferSource();
+      source.buffer = trimmedBuffer;
+      source.playbackRate.value = semitonesToPlaybackRate(pitchSemitones);
+      source.connect(offlineCtx.destination);
+      source.start(0);
+
+      const renderedBuffer = await offlineCtx.startRendering();
+
+      const wavBlob = encodeWAV(renderedBuffer);
+      zip.file(`variation_${i + 1}_pitch${pitchSemitones.toFixed(2)}.wav`, wavBlob);
+      statusDiv.textContent = `Generating variation ${i + 1} of ${count}...`;
     }
 
-    const content = await zip.generateAsync({ type: 'blob' });
-
-    const url = URL.createObjectURL(content);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'pitch_variations.zip';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-
-    statusDiv.textContent = 'Pitch variations ZIP generated and downloaded.';
+    const zipBlob = await zip.generateAsync({ type: 'blob' });
+    const filename = `variations_pitchVar${pitchVar}.zip`;
+    downloadBlob(zipBlob, filename);
+    statusDiv.textContent = `Generated ZIP with ${count} variations ready.`;
   }
 
   generateBtn.disabled = false;
+  previewBtn.disabled = false;
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+    a.remove();
+  }, 100);
 }
 </script>
 </body>

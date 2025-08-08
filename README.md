@@ -31,10 +31,6 @@ Perfect for game developers and audio creators who want to generate seamless loo
 - [JSZip](https://stuk.github.io/jszip/) for generating ZIP archives.
 - HTML5, CSS3, and vanilla JavaScript.
 
-## License
-
-This project is open source under the [MIT License](LICENSE).
-
 ## Author
 
 Created with care by [MobMasterMind](https://github.com/MobMasterMind).

@@ -34,7 +34,3 @@ Perfect for game developers and audio creators who want to generate seamless loo
 ## Author
 
 Created with care by [MobMasterMind](https://github.com/MobMasterMind).
-
----
-
-Feel free to customize or let me know if you want me to add anything else like screenshots, contribution guidelines, or deployment instructions!
